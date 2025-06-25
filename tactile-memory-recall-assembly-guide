@@ -1,0 +1,363 @@
+# Tactile Memory Recall - Assembly Guide
+
+This comprehensive guide will walk you through building your own Tactile Memory Replay system from scratch. Follow each step carefully for optimal results.
+
+## Required Components
+
+### Electronic Components
+| Component | Model | Quantity | Notes |
+|-----------|-------|----------|-------|
+| Arduino Mega 2560 | Official or compatible | 1 | Main microcontroller |
+| MPU6050 IMU | GY-521 breakout board | 3 | 6-axis motion sensors |
+| TCA9548A | I2C multiplexer breakout | 1 | Enables multiple MPU6050s |
+| FSR402 | Force sensitive resistor | 3 | Pressure detection |
+| Vibration Motor | 10mm coin type | 3 | Haptic feedback |
+| 2N7000 MOSFET | N-channel | 3 | Motor control |
+| Resistors | 1kΩ | 3 | Pull-up resistors |
+| Resistors | 10kΩ | 3 | FSR voltage dividers |
+| Breadboard | Half-size | 1 | Circuit prototyping |
+| Jumper Wires | Male-to-male | 30+ | Connections |
+
+### Tools Required
+- Soldering iron and solder
+- Wire strippers
+- Multimeter
+- Computer with Arduino IDE
+- USB cable (Arduino Mega compatible)
+
+### Optional Components
+- Prototype PCB for permanent assembly
+- Heat shrink tubing
+- Cable management clips
+- Project enclosure
+
+## Step 1: Prepare the Arduino Mega
+
+1. **Install Arduino IDE**
+   - Download from [arduino.cc](https://www.arduino.cc/en/software)
+   - Install required libraries:
+     ```
+     - Wire (built-in)
+     - EEPROM (built-in)
+     ```
+
+2. **Test Arduino Mega**
+   - Connect via USB
+   - Upload the basic "Blink" example
+   - Verify the board is functioning
+
+## 🔌 Step 2: I2C Multiplexer Setup
+
+The TCA9548A allows us to use multiple MPU6050 sensors (which share the same I2C address).
+
+### Connections:
+```
+TCA9548A → Arduino Mega
+VCC      → 5V
+GND      → GND
+SDA      → Pin 20 (SDA)
+SCL      → Pin 21 (SCL)
+```
+
+### Verification:
+```cpp
+// Test I2C multiplexer detection
+#include <Wire.h>
+
+void setup() {
+  Serial.begin(115200);
+  Wire.begin();
+  
+  Wire.beginTransmission(0x70); // TCA9548A address
+  if (Wire.endTransmission() == 0) {
+    Serial.println("TCA9548A detected!");
+  } else {
+    Serial.println("TCA9548A not found!");
+  }
+}
+
+void loop() {}
+```
+
+## 📐 Step 3: MPU6050 IMU Sensors
+
+Install three MPU6050 sensors for finger tracking.
+
+### Individual MPU6050 Connections:
+```
+MPU6050 → TCA9548A
+VCC     → 5V (via multiplexer power)
+GND     → GND (via multiplexer ground)
+SDA     → SD0, SD1, SD2 (channels 0, 1, 2)
+SCL     → SC0, SC1, SC2 (channels 0, 1, 2)
+```
+
+### Physical Mounting:
+1. **Sensor Placement:**
+   - Sensor 0: Thumb
+   - Sensor 1: Index finger
+   - Sensor 2: Middle finger
+
+2. **Attachment Method:**
+   - Use double-sided tape for prototyping
+   - Consider fabric mounts for comfort
+   - Ensure sensors can move freely with fingers
+
+### Calibration Test:
+```cpp
+// Test all three MPU6050 sensors
+void testAllSensors() {
+  for (int channel = 0; channel < 3; channel++) {
+    selectI2CChannel(channel);
+    
+    Wire.beginTransmission(0x68);
+    Wire.write(0x75); // WHO_AM_I register
+    Wire.endTransmission(false);
+    Wire.requestFrom(0x68, 1, true);
+    
+    if (Wire.available()) {
+      uint8_t whoami = Wire.read();
+      Serial.print("Sensor ");
+      Serial.print(channel);
+      Serial.print(" WHO_AM_I: 0x");
+      Serial.println(whoami, HEX);
+    }
+  }
+}
+```
+
+##  Step 4: Force Sensitive Resistors
+
+FSR sensors detect when the user applies pressure to trigger memory recording.
+
+### FSR Circuit for Each Sensor:
+```
+5V → 10kΩ resistor → Analog pin
+              ↓
+           FSR → GND
+```
+
+### Connections:
+```
+FSR Circuit → Arduino Mega
+FSR 1       → Pin A3 (Thumb)
+FSR 2       → Pin A6 (Index finger)
+FSR 3       → Pin A7 (Middle finger)
+```
+
+### Physical Mounting:
+1. **Fingertip Placement:**
+   - Attach FSRs to fingertip areas
+   - Ensure good contact with finger pads
+   - Use flexible mounting for comfort
+
+2. **Testing:**
+   ```cpp
+   void testFSRs() {
+     for (int i = 0; i < 3; i++) {
+       int reading = analogRead(fsrPins[i]);
+       Serial.print("FSR ");
+       Serial.print(i);
+       Serial.print(": ");
+       Serial.println(reading);
+     }
+     delay(100);
+   }
+   ```
+
+## 🔊 Step 5: Haptic Feedback Motors
+
+Vibration motors provide tactile feedback when spatial memories are detected.
+
+### Motor Driver Circuit (Per Motor):
+```
+Arduino PWM → Gate of 2N7000 MOSFET
+Source of MOSFET → GND
+Drain of MOSFET → Motor negative terminal
+Motor positive terminal → 5V
+1kΩ resistor between PWM pin and MOSFET gate
+```
+
+### Connections:
+```
+Motor Control → Arduino Mega
+Motor 1       → Pin 51 (PWM - Thumb)
+Motor 2       → Pin 44 (PWM - Index)
+Motor 3       → Pin 46 (PWM - Middle)
+```
+
+### MOSFET Wiring Details:
+```
+2N7000 MOSFET Pinout (looking at flat side):
+[Drain] [Gate] [Source]
+   |      |       |
+   |      |       └── GND
+   |      └────────── Arduino PWM (via 1kΩ)
+   └───────────────── Motor negative
+```
+
+### Motor Test:
+```cpp
+void testMotors() {
+  int motorPins[] = {51, 44, 46};
+  
+  for (int i = 0; i < 3; i++) {
+    Serial.print("Testing motor ");
+    Serial.println(i);
+    
+    analogWrite(motorPins[i], 255); // Full intensity
+    delay(500);
+    analogWrite(motorPins[i], 0);   // Off
+    delay(200);
+  }
+}
+```
+
+## 🔗 Step 6: Complete Circuit Assembly
+
+### Breadboard Layout Strategy:
+1. **Power Rail Setup:**
+   - Connect Arduino 5V to breadboard positive rail
+   - Connect Arduino GND to breadboard negative rail
+
+2. **I2C Bus:**
+   - Run SDA/SCL lines from Arduino to TCA9548A
+   - Connect all I2C devices to multiplexer
+
+3. **Analog Inputs:**
+   - Wire FSR voltage dividers
+   - Connect to Arduino analog pins
+
+4. **PWM Outputs:**
+   - Wire MOSFET motor drivers
+   - Connect to Arduino PWM pins
+
+### Circuit Verification Checklist:
+- [ ] All power connections secure
+- [ ] I2C pullup resistors in place (usually on breakout boards)
+- [ ] FSR voltage dividers correct (10kΩ to 5V)
+- [ ] MOSFET gates connected via 1kΩ resistors
+- [ ] Motor power supply adequate
+- [ ] No short circuits between power rails
+
+## Step 7: Software Installation
+
+1. **Download the code:**
+   ```bash
+   git clone https://github.com/CJD-11/tactile-memory-recall.git
+
+   ```
+
+2. **Install required libraries:**
+   - Open Arduino IDE
+   - Go to Tools → Manage Libraries
+   - Search and install any additional libraries
+
+3. **Upload the main code:**
+   - Open `src/tactile_memory_recall.ino`
+   - Select Arduino Mega 2560 board
+   - Choose correct COM port
+   - Upload the sketch
+
+## Step 8: System Testing
+
+### Initial Power-On Test:
+1. **Connect Arduino via USB**
+2. **Open Serial Monitor (115200 baud)**
+3. **Verify startup messages:**
+   ```
+   === Tactile Memory Replay System ===
+   Initializing MPU6050 sensors...
+   MPU6050 sensor 0 initialized
+   MPU6050 sensor 1 initialized
+   MPU6050 sensor 2 initialized
+   System initialized successfully!
+   ```
+
+### Sensor Functionality Test:
+1. **Enter calibration mode:**
+   ```
+   CALIBRATE
+   ```
+2. **Move fingers and verify gyroscope readings change**
+3. **Press FSRs and verify force readings increase**
+4. **Test haptic motors:**
+   ```
+   TESTMOTOR
+   ```
+
+### Full System Test:
+1. **Record a spatial memory:**
+   ```
+   MAP
+   ```
+   - Apply pressure to FSR
+   - Hold steady for 3 seconds
+   - Verify memory is stored
+
+2. **Test memory replay:**
+   ```
+   REPLAY
+   ```
+   - Reproduce the recorded finger position
+   - Verify haptic feedback activates
+
+## 🛠Troubleshooting Common Issues
+
+### No Sensor Readings:
+- Check I2C connections (SDA/SCL)
+- Verify TCA9548A power and addressing
+- Test each MPU6050 individually
+
+### Weak Haptic Feedback:
+- Check MOSFET connections
+- Verify motor power supply (5V)
+- Test motor functionality with direct connection
+
+### Inconsistent Force Detection:
+- Calibrate FSR threshold values
+- Check voltage divider resistor values
+- Verify analog pin connections
+
+### Memory Not Persisting:
+- Check EEPROM write operations
+- Verify power supply stability
+- Test with known good memory slots
+
+##  Advanced Modifications
+
+### Wireless Operation:
+- Replace Arduino Mega with ESP32
+- Implement WiFi or Bluetooth communication
+- Add battery power management
+
+### Improved Wearability:
+- Design custom PCB for compact assembly
+- Use flexible ribbon cables
+- Create ergonomic finger mounts
+
+### Enhanced Haptics:
+- Add directional haptic feedback
+- Implement variable intensity patterns
+- Include audio feedback option
+
+## Final Assembly Checklist
+
+- [ ] All electronic connections secure
+- [ ] Software uploaded and tested
+- [ ] Sensor calibration completed
+- [ ] Haptic feedback functional
+- [ ] Memory storage/retrieval working
+- [ ] Physical mounting comfortable
+- [ ] System documentation complete
+- [ ] Safety considerations addressed
+
+## Next Steps
+
+Once your system is assembled and tested:
+
+1. **Conduct user testing** with target applications
+2. **Document performance metrics** for research
+3. **Explore advanced features** like wireless connectivity
+
+
