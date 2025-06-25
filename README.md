@@ -202,7 +202,7 @@ Research Paper: Complete technical documentation
 Contact
 Corey Dziadzio
 📧 Email: coreydziadzio@c11visualarts.com
-🌐 GitHub: @CJD-11
+🌐 GitHub: [@CJD-11](https://github.com/CJD-11)
 🔗 Project Link: https://github.com/CJD-11/Arduino-Haptic-Glove
 
 
