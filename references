@@ -1,0 +1,74 @@
+KEY REFERENCES
+Tactile Memory Replay: A Haptic Interface for Embodied Spatial Recall
+Core Theoretical Framework
+Embodied Cognition
+
+Varela, F. J., Thompson, E., & Rosch, E. (1991). The Embodied Mind: Cognitive Science and Human Experience. MIT Press.
+Clark, A. (1997). Being There: Putting Brain, Body, and World Together Again. MIT Press.
+
+Spatial Memory and Cognitive Mapping
+
+O'Keefe, J., & Nadel, L. (1978). The Hippocampus as a Cognitive Map. Oxford University Press.
+O'Keefe, J., & Dostrovsky, J. (1971). The hippocampus as a spatial map: Preliminary evidence from unit activity in the freely-moving rat. Brain Research, 34(1), 171-175.
+
+Haptic Exploration
+
+Lederman, S. J., & Klatzky, R. L. (1987). Hand movements: A window into haptic object recognition. Cognitive Psychology, 19(3), 342-368.
+Lederman, S. J., & Klatzky, R. L. (2009). Haptic perception: A tutorial. Attention, Perception, & Psychophysics, 71(7), 1439-1464.
+
+Technical Implementation
+MPU6050 IMU Sensor
+
+InvenSense. (2013). MPU-6000 and MPU-6050 Product Specification Revision 3.4. TDK InvenSense.
+Rowberg, J. (2012). I2Cdev device library collection for Arduino. GitHub: https://github.com/jrowberg/i2cdevlib
+
+I2C Multiplexer (TCA9548A)
+
+Texas Instruments. (2015). TCA9548A Low-Voltage 8-Channel I2C Switch with Reset. TI Data Sheet.
+Adafruit Industries. (2015). TCA9548A 1-to-8 I2C multiplexer tutorial. Adafruit Learning System.
+
+Arduino Platform
+
+Banzi, M., & Shiloh, M. (2014). Getting Started with Arduino. Maker Media.
+
+Human-Computer Interaction
+Embodied Interaction Design
+
+Dourish, P. (2001). Where the Action Is: The Foundations of Embodied Interaction. MIT Press.
+
+Assistive Technology
+
+Brock, A. M., et al. (2015). Interactivity improves usability of geographic maps for visually impaired people. Human-Computer Interaction, 30(2), 156-194.
+
+Memory Research
+Spatial Memory Enhancement
+
+Loomis, J. M., et al. (1999). Human navigation by path integration. In Wayfinding Behavior: Cognitive Mapping and Other Spatial Processes (pp. 125-151). Johns Hopkins University Press.
+
+Method of Loci
+
+Yates, F. A. (1966). The Art of Memory. University of Chicago Press.
+Legge, E. L., et al. (2012). Building a memory palace in minutes: Virtual versus conventional environments with the method of loci. Acta Psychologica, 141(3), 380-390.
+
+MIT Media Lab Philosophy
+Anti-Disciplinary Research & Learning Through Making
+
+Papert, S. (1980). Mindstorms: Children, Computers, and Powerful Ideas. Basic Books.
+Resnick, M. (2017). Lifelong Kindergarten: Cultivating Creativity through Projects, Passion, Peers, and Play. MIT Press.
+
+Open Source & Reproducibility
+Open Hardware
+
+Pearce, J. M. (2012). Building research equipment with free, open-source hardware. Science, 337(6100), 1303-1304.
+
+Research Reproducibility
+
+Nosek, B. A., et al. (2015). Promoting an open research culture. Science, 348(6242), 1422-1425.
+
+
+Citation Notes
+
+Citations follow APA 7th edition format
+All technical specifications verified through manufacturer documentation
+Open-source code and hardware designs available at: https://github.com/CJD-11/Arduino-Haptic-Glove
+Research conducted independently without external funding or conflicts of interest
